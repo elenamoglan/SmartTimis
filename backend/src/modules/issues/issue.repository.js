@@ -1,0 +1,86 @@
+const db = require('../../config/db');
+
+const createIssue = async (issue) => {
+  const { user_id, title, description, image_url, latitude, longitude } = issue;
+  const query = `
+    INSERT INTO issue_reports (user_id, title, description, image_url, latitude, longitude)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING *
+  `;
+  const result = await db.query(query, [
+    user_id,
+    title,
+    description,
+    image_url,
+    latitude,
+    longitude,
+  ]);
+  return result.rows[0];
+};
+
+const findAllIssues = async (limit, offset, status) => {
+  let query = `
+    SELECT i.*, u.name as reporter_name 
+    FROM issue_reports i 
+    JOIN users u ON i.user_id = u.id
+  `;
+  const params = [];
+  
+  if (status) {
+    query += ` WHERE i.status = $1`;
+    params.push(status);
+  }
+
+  query += ` ORDER BY i.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+  params.push(limit, offset);
+
+  const result = await db.query(query, params);
+  return result.rows;
+};
+
+const findIssueById = async (id) => {
+  const query = `
+    SELECT i.*, u.name as reporter_name 
+    FROM issue_reports i 
+    JOIN users u ON i.user_id = u.id 
+    WHERE i.id = $1
+  `;
+  const result = await db.query(query, [id]);
+  return result.rows[0];
+};
+
+const updateIssueStatus = async (id, status) => {
+  const query = `
+    UPDATE issue_reports 
+    SET status = $1, updated_at = NOW() 
+    WHERE id = $2 
+    RETURNING *
+  `;
+  const result = await db.query(query, [status, id]);
+  return result.rows[0];
+};
+
+const findIssuesByUserId = async (userId) => {
+  const query = `
+    SELECT * FROM issue_reports WHERE user_id = $1 ORDER BY created_at DESC
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows;
+};
+
+const countIssuesByStatus = async () => {
+  const query = `
+    SELECT status, COUNT(*) as count FROM issue_reports GROUP BY status
+  `;
+  const result = await db.query(query);
+  return result.rows;
+};
+
+module.exports = {
+  createIssue,
+  findAllIssues,
+  findIssueById,
+  updateIssueStatus,
+  findIssuesByUserId,
+  countIssuesByStatus
+};
