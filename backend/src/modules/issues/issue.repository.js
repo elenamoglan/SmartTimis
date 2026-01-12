@@ -76,11 +76,30 @@ const countIssuesByStatus = async () => {
   return result.rows;
 };
 
+const likeIssue = async (userId, issueId) => {
+    // Check if like exists
+    const checkQuery = 'SELECT * FROM issue_likes WHERE user_id = $1 AND issue_id = $2';
+    const checkResult = await db.query(checkQuery, [userId, issueId]);
+
+    if (checkResult.rows.length > 0) {
+        // Already liked, so remove like (toggle)
+        await db.query('DELETE FROM issue_likes WHERE user_id = $1 AND issue_id = $2', [userId, issueId]);
+        await db.query('UPDATE issue_reports SET likes_count = likes_count - 1 WHERE id = $1', [issueId]);
+        return { liked: false };
+    } else {
+        // Add like
+        await db.query('INSERT INTO issue_likes (user_id, issue_id) VALUES ($1, $2)', [userId, issueId]);
+        await db.query('UPDATE issue_reports SET likes_count = likes_count + 1 WHERE id = $1', [issueId]);
+        return { liked: true };
+    }
+};
+
 module.exports = {
   createIssue,
   findAllIssues,
   findIssueById,
   updateIssueStatus,
   findIssuesByUserId,
-  countIssuesByStatus
+  countIssuesByStatus,
+  likeIssue
 };

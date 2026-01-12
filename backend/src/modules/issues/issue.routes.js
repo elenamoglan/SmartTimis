@@ -28,5 +28,6 @@ router.get('/', issueController.getIssues);
 router.get('/my-issues', protect, issueController.getUserIssues);
 router.get('/:id', issueController.getIssueById);
 router.post('/', protect, upload.single('image'), issueController.createIssue);
+router.post('/:id/like', protect, issueController.likeIssue);
 
 module.exports = router;

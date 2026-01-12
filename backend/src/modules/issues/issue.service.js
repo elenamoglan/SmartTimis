@@ -21,4 +21,8 @@ const getUserIssues = async (userId) => {
   return await issueRepository.findIssuesByUserId(userId);
 };
 
-module.exports = { createIssue, getIssues, getIssueById, getUserIssues };
+const likeIssue = async (userId, issueId) => {
+    return await issueRepository.likeIssue(userId, issueId);
+};
+
+module.exports = { createIssue, getIssues, getIssueById, getUserIssues, likeIssue };

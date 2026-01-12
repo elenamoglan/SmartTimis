@@ -12,9 +12,22 @@ const runMigrations = async () => {
         const client = await pool.connect();
         
         // 002 Notification
-        const sql = fs.readFileSync(path.join(__dirname, 'migrations', '002_create_notifications.sql'), 'utf8');
-        await client.query(sql);
-        console.log('Migration 002 executed.');
+        try {
+            const sql002 = fs.readFileSync(path.join(__dirname, 'migrations', '002_create_notifications.sql'), 'utf8');
+            await client.query(sql002);
+            console.log('Migration 002 executed.');
+        } catch (e) {
+            console.log('Migration 002 skipped/error (might already exist):', e.message);
+        }
+
+        // 003 Likes
+        try {
+            const sql003 = fs.readFileSync(path.join(__dirname, 'migrations', '003_add_likes.sql'), 'utf8');
+            await client.query(sql003);
+            console.log('Migration 003 executed.');
+        } catch (e) {
+             console.log('Migration 003 skipped/error:', e.message);
+        }
 
         client.release();
         process.exit(0);
