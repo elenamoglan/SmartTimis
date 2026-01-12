@@ -68,7 +68,7 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <MapPin size={32} />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Location-Based Reporting</h3>
@@ -79,7 +79,7 @@ const LandingPage = () => {
 
             {/* Feature 2 */}
             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <FileText size={32} />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Detailed Issue Tracking</h3>
@@ -90,7 +90,7 @@ const LandingPage = () => {
 
             {/* Feature 3 */}
             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Shield size={32} />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Secure & Transparent</h3>
