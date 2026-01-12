@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
+import { Upload } from 'lucide-react';
 
 const LocationMarker = ({ setPosition, position }) => {
   useMapEvents({
@@ -49,7 +50,7 @@ const ReportIssue = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to submit report');
     } finally {
@@ -58,73 +59,120 @@ const ReportIssue = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md border">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Report an Issue</h1>
-        
-        {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
+    <div className="max-w-3xl mx-auto py-6">
+        <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Report an Issue</h1>
+            <p className="text-gray-500 mt-2">Help improve your community by reporting infrastructure issues</p>
+        </div>
+
+        {error && <div className="bg-red-50 text-red-700 p-4 mb-6 rounded-lg border border-red-200">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Issue Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., Pothole on Main St"
-              required
-            />
-          </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
-              placeholder="Describe the issue in detail..."
-              required
-            />
-          </div>
+            {/* Issue Details Card */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    Issue Details
+                </h2>
+                <p className="text-sm text-gray-500 mb-6">Provide a clear title and detailed description of the issue</p>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Location (Click on map)</label>
-            <div className="h-64 rounded border overflow-hidden">
-              <MapContainer center={[45.7489, 21.2087]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <LocationMarker setPosition={setPosition} position={position} />
-              </MapContainer>
+                <div className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="e.g., Pothole on Main Street"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-h-[120px]"
+                            placeholder="Describe the issue in detail. Include any relevant information such as size, severity, and how long it has been there..."
+                            required
+                        />
+                    </div>
+                </div>
             </div>
-            {position && (
-              <p className="text-sm text-gray-500 mt-1">
-                Selected: {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
-              </p>
-            )}
-          </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Upload Image (Optional)</label>
-            <input
-              type="file"
-              onChange={(e) => setImage(e.target.files[0])}
-              accept="image/*"
-              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-          </div>
+            {/* Location Card */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    Location
+                </h2>
+                <p className="text-sm text-gray-500 mb-6">Click on the map to select the issue location</p>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:bg-blue-300"
-          >
-            {loading ? 'Submitting...' : 'Submit Report'}
-          </button>
+                <div className="h-80 rounded-lg overflow-hidden border border-gray-200 relative">
+                    <MapContainer center={[45.7489, 21.2087]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                        <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        />
+                        <LocationMarker setPosition={setPosition} position={position} />
+                    </MapContainer>
+
+                    {!position && (
+                         <div className="absolute inset-0 bg-black/5 pointer-events-none flex items-center justify-center">
+                            <span className="bg-white px-3 py-1 rounded shadow text-xs font-medium text-gray-600">Click to place pin</span>
+                         </div>
+                    )}
+                </div>
+                {position && (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-100">
+                        <span className="font-medium text-blue-600">Selected:</span> {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
+                    </div>
+                )}
+            </div>
+
+            {/* Photo Card */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                     Photo (Optional)
+                </h2>
+                <p className="text-sm text-gray-500 mb-6">Upload a photo to help illustrate the issue</p>
+
+                <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-10 hover:bg-gray-50 transition-colors text-center cursor-pointer group">
+                    <input
+                        type="file"
+                        onChange={(e) => setImage(e.target.files[0])}
+                        accept="image/*"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="flex flex-col items-center justify-center gap-2 text-gray-500 group-hover:text-blue-600 transition-colors">
+                        <Upload size={32} />
+                        <span className="font-medium">
+                            {image ? image.name : "Click to upload an image (max 5MB)"}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-4 pb-12 gap-4">
+                <button
+                    type="button"
+                    onClick={() => navigate('/dashboard')}
+                    className="flex-1 py-3 px-6 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 py-3 px-6 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    {loading ? 'Submitting...' : 'Submit Report'}
+                </button>
+            </div>
+
         </form>
-      </div>
     </div>
   );
 };

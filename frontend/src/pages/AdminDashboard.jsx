@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Shield, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [issues, setIssues] = useState([]);
@@ -36,131 +37,176 @@ const AdminDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'OPEN': return 'bg-red-100 text-red-800';
-      case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-800';
-      case 'RESOLVED': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'OPEN': return 'bg-red-100 text-red-700 border border-red-200';
+      case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+      case 'RESOLVED': return 'bg-green-100 text-green-700 border border-green-200';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  // Helper to get stats safely
+  const getStat = (status) => {
+      const stat = stats.find(s => s.status === status);
+      return stat ? stat.count : 0;
+  }
+
+  if (loading) return (
+      <div className="flex items-center justify-center min-h-[500px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+  );
 
   return (
-      <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-
-        {/* Stats Cards - Already Responsive */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {stats.map((stat) => (
-              <div key={stat.status} className="bg-white p-6 rounded-lg shadow border">
-                <h3 className="text-gray-500 text-sm font-medium uppercase">{stat.status} Issues</h3>
-                <p className="text-3xl font-bold mt-2">{stat.count}</p>
-              </div>
-          ))}
+      <div className="py-6 space-y-8">
+        <div className="flex items-center justify-between">
+            <div>
+                <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+                <p className="text-gray-500 mt-1">Overview of system activity and reports</p>
+            </div>
+            <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-sm font-medium">
+                <Shield size={16} />
+                <span>Admin Access</span>
+            </div>
         </div>
 
-        {/* --- DESKTOP VIEW: Table (Hidden on Mobile) --- */}
-        <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden border">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reporter</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-            {issues.map((issue) => (
-                <tr key={issue.id}>
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">{issue.title}</div>
-                    <div className="text-sm text-gray-500">{issue.description.substring(0, 50)}...</div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {issue.image_url ? (
-                        <a
-                            href={issue.image_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-900 text-xs font-semibold"
-                        >
-                          View Image
-                        </a>
-                    ) : (
-                        <span className="text-gray-400 text-xs">No Image</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{issue.reporter_name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{new Date(issue.created_at).toLocaleDateString()}</td>
-                  <td className="px-6 py-4">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(issue.status)}`}>
-                    {issue.status}
-                  </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium">
-                    <select
-                        value={issue.status}
-                        onChange={(e) => handleStatusUpdate(issue.id, e.target.value)}
-                        className="border rounded text-sm p-1"
-                    >
-                      <option value="OPEN">OPEN</option>
-                      <option value="IN_PROGRESS">IN PROGRESS</option>
-                      <option value="RESOLVED">RESOLVED</option>
-                    </select>
-                  </td>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-start justify-between">
+            <div>
+                <p className="text-gray-500 text-sm font-medium mb-1">Pending Reports</p>
+                <h3 className="text-3xl font-bold text-gray-900">{getStat('OPEN')}</h3>
+                <p className="text-xs text-red-600 mt-2 font-medium flex items-center gap-1">
+                    <AlertCircle size={12} /> Requires attention
+                </p>
+            </div>
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg">
+                <AlertCircle size={24} />
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-start justify-between">
+            <div>
+                <p className="text-gray-500 text-sm font-medium mb-1">In Progress</p>
+                <h3 className="text-3xl font-bold text-gray-900">{getStat('IN_PROGRESS')}</h3>
+                 <p className="text-xs text-yellow-600 mt-2 font-medium flex items-center gap-1">
+                    <Clock size={12} /> Currently handling
+                </p>
+            </div>
+            <div className="p-3 bg-yellow-50 text-yellow-600 rounded-lg">
+                <Clock size={24} />
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-start justify-between">
+            <div>
+                <p className="text-gray-500 text-sm font-medium mb-1">Resolved Issues</p>
+                <h3 className="text-3xl font-bold text-gray-900">{getStat('RESOLVED')}</h3>
+                 <p className="text-xs text-green-600 mt-2 font-medium flex items-center gap-1">
+                    <CheckCircle size={12} /> Completed
+                </p>
+            </div>
+             <div className="p-3 bg-green-50 text-green-600 rounded-lg">
+                <CheckCircle size={24} />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Chart Simulation (CSS Based) */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-2">
+                <h3 className="font-bold text-gray-900 mb-6">Reports Overview</h3>
+                <div className="h-64 flex items-end justify-around gap-2 px-4 pb-4 border-b border-gray-100">
+                    {/* Mock Data Bars */}
+                    {[40, 65, 30, 80, 55, 90, 45].map((h, i) => (
+                        <div key={i} className="w-full flex flex-col justify-end group cursor-pointer">
+                            <div
+                                style={{ height: `${h}%` }}
+                                className="bg-blue-100 hover:bg-blue-600 rounded-t-lg transition-all duration-300 relative"
+                            >
+                                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {h}
+                                </span>
+                            </div>
+                            <span className="text-xs text-gray-400 text-center mt-2">Day {i+1}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Recent Activity List */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 className="font-bold text-gray-900 mb-4">Recent Activity</h3>
+                <div className="space-y-4">
+                    {issues.slice(0, 5).map(issue => (
+                        <div key={issue.id} className="flex items-start gap-3 pb-3 border-b border-gray-50 last:border-0">
+                            <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${
+                                issue.status === 'OPEN' ? 'bg-red-500' :
+                                issue.status === 'IN_PROGRESS' ? 'bg-yellow-500' : 'bg-green-500'
+                            }`} />
+                            <div>
+                                <p className="text-sm font-medium text-gray-800 line-clamp-1">{issue.title}</p>
+                                <p className="text-xs text-gray-500">
+                                    Reported by <span className="text-gray-700">{issue.reporter_name}</span>
+                                </p>
+                                <p className="text-[10px] text-gray-400 mt-1">{new Date(issue.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    ))}
+                    {issues.length === 0 && <p className="text-sm text-gray-500">No recent activity.</p>}
+                </div>
+            </div>
+        </div>
+
+        {/* Detailed Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <h3 className="font-bold text-gray-900">All Reports</h3>
+            </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Issue</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
-            ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* --- MOBILE VIEW: Cards (Hidden on Desktop) --- */}
-        <div className="md:hidden space-y-4">
-          {issues.map((issue) => (
-              <div key={issue.id} className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-gray-900">{issue.title}</h3>
-                  <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded-full ${getStatusColor(issue.status)}`}>
-                {issue.status}
-              </span>
-                </div>
-
-                <p className="text-sm text-gray-600 mb-3">{issue.description}</p>
-
-                <div className="flex flex-col gap-1 text-xs text-gray-500 mb-3">
-                  <p><span className="font-semibold">By:</span> {issue.reporter_name}</p>
-                  <p><span className="font-semibold">Date:</span> {new Date(issue.created_at).toLocaleDateString()}</p>
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                  {issue.image_url ? (
-                      <a
-                          href={issue.image_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 font-medium text-xs hover:underline"
-                      >
-                        View Image
-                      </a>
-                  ) : (
-                      <span className="text-gray-400 text-xs">No Image</span>
-                  )}
-
-                  <select
-                      value={issue.status}
-                      onChange={(e) => handleStatusUpdate(issue.id, e.target.value)}
-                      className="border rounded text-sm p-1.5 bg-gray-50"
-                  >
-                    <option value="OPEN">OPEN</option>
-                    <option value="IN_PROGRESS">IN PROGRESS</option>
-                    <option value="RESOLVED">RESOLVED</option>
-                  </select>
-                </div>
-              </div>
-          ))}
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                {issues.map((issue) => (
+                    <tr key={issue.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-gray-900">{issue.title}</div>
+                            <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{issue.description}</div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                            {issue.reporter_name}
+                        </td>
+                        <td className="px-6 py-4">
+                            <span className={`px-2.5 py-0.5 inline-flex text-xs font-medium rounded-full ${getStatusColor(issue.status)}`}>
+                                {issue.status}
+                            </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                            {new Date(issue.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium">
+                            <select
+                                value={issue.status}
+                                onChange={(e) => handleStatusUpdate(issue.id, e.target.value)}
+                                className="block w-full text-xs border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 border p-1"
+                            >
+                            <option value="OPEN">Open</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="RESOLVED">Resolved</option>
+                            </select>
+                        </td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+          </div>
         </div>
 
       </div>
