@@ -29,25 +29,28 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50 to-white text-center">
+      <section
+        className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center"
+        style={{ background: 'linear-gradient(135deg, #13386c, #24748f)' }}
+      >
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
             Building better <br/>
-            <span className="text-blue-600">communities together.</span>
+            <span className="text-blue-200">communities together.</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed">
             Report issues, track progress, and collaborate with local authorities to improve your neighborhood. Join the SmartCity initiative today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               to="/register"
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-blue-400"
             >
               Report an Issue
             </Link>
             <Link
               to="/login"
-              className="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg border border-gray-200 transition-all shadow-sm hover:shadow-md"
+              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg border border-white/30 transition-all shadow-sm hover:shadow-md backdrop-blur-sm"
             >
               View Dashboard
             </Link>

@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { divIcon } from 'leaflet';
 import { Search, Filter, Map as MapIcon, List, ThumbsUp, MapPin, Calendar } from 'lucide-react';
 
-const IssueCard = ({ issue, getStatusColor }) => {
+const IssueCard = ({ issue, getStatusColor, onLike }) => {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden group">
       {/* Image Section */}
@@ -43,7 +43,6 @@ const IssueCard = ({ issue, getStatusColor }) => {
           <div className="flex items-center text-gray-400 text-xs">
             <MapPin size={14} className="mr-2 flex-shrink-0" />
             <span className="truncate">
-               {/* Ideally we would have a geocoded address, using lat/lng for now if no address field */}
                Lat: {issue.latitude.toFixed(4)}, Lng: {issue.longitude.toFixed(4)}
             </span>
           </div>
@@ -55,11 +54,14 @@ const IssueCard = ({ issue, getStatusColor }) => {
 
         {/* Footer Actions */}
         <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
-            <button className="flex items-center gap-1.5 text-gray-500 hover:text-red-500 transition-colors group/btn">
+            <button
+                onClick={() => onLike(issue.id)}
+                className="flex items-center gap-1.5 text-gray-500 hover:text-red-500 transition-colors group/btn"
+            >
                 <div className="p-1.5 rounded-full group-hover/btn:bg-red-50 transition-colors">
                     <ThumbsUp size={16} />
                 </div>
-                <span className="text-xs font-medium">12</span>
+                <span className="text-xs font-medium">{issue.likes_count || 0}</span>
             </button>
             <span className="text-xs text-gray-400 font-medium">
                 By {issue.reporter_name}
@@ -78,54 +80,44 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
-    const fetchIssues = async () => {
+    fetchIssues();
+  }, []);
+
+  const fetchIssues = async () => {
       try {
         const res = await axios.get('/api/issues');
         setIssues(res.data);
       } catch (err) {
         console.error("API failed, using mock data", err);
-        setIssues([
-            {
-                id: 1,
-                title: 'Pothole on Main St',
-                status: 'OPEN',
-                description: 'Large pothole causing traffic slowdowns near the bakery. Needs urgent repair.',
-                image_url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=400',
-                latitude: 45.7489,
-                longitude: 21.2087,
-                created_at: new Date().toISOString(),
-                reporter_name: 'John Doe'
-            },
-            {
-                id: 2,
-                title: 'Broken Streetlight',
-                status: 'IN_PROGRESS',
-                description: 'Streetlight flickering constantly at night. Safety hazard for pedestrians.',
-                image_url: 'https://images.unsplash.com/photo-1516905041604-7935af78f5fa?auto=format&fit=crop&q=80&w=400',
-                latitude: 45.7500,
-                longitude: 21.2100,
-                created_at: new Date(Date.now() - 86400000).toISOString(),
-                reporter_name: 'Jane Smith'
-            },
-            {
-                id: 3,
-                title: 'Illegal Dumping',
-                status: 'RESOLVED',
-                description: 'Pile of trash left in the park corner. Please clean up.',
-                image_url: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&q=80&w=400',
-                latitude: 45.7520,
-                longitude: 21.2050,
-                created_at: new Date(Date.now() - 172800000).toISOString(),
-                reporter_name: 'Mike Johnson'
-            }
-        ]);
+        // Mock data logic removed for production, but could keep as fallback
+        setIssues([]);
       } finally {
         setLoading(false);
       }
-    };
+  };
 
-    fetchIssues();
-  }, []);
+  const handleLike = async (id) => {
+      try {
+          await axios.post(`/api/issues/${id}/like`);
+          // Optimistic update or refetch
+          // For simplicity, refetching mostly, or updating state manually
+          // Updating state manually is smoother
+          setIssues(issues.map(issue => {
+              if (issue.id === id) {
+                  // We don't know if we liked or unliked easily without return data
+                  // But usually we just want to see the count change.
+                  // Ideally the API returns the new count or we fetch it.
+                  // Let's refetch for correctness or assume increment for now.
+                  // Actually, let's just refetch to be safe.
+                  return issue;
+              }
+              return issue;
+          }));
+          fetchIssues(); // Simplest way to ensure correct count
+      } catch (err) {
+          console.error("Failed to like issue", err);
+      }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -185,7 +177,7 @@ const Dashboard = () => {
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           {/* Search */}
-          <div className="relative group">
+          <div className="relative group w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
             <input
               type="text"
@@ -197,12 +189,12 @@ const Dashboard = () => {
           </div>
 
           {/* Filter */}
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 appearance-none cursor-pointer hover:bg-gray-100 transition-colors"
+                className="w-full sm:w-auto pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 appearance-none cursor-pointer hover:bg-gray-100 transition-colors"
              >
                <option value="ALL">All Status</option>
                <option value="OPEN">Open</option>
@@ -233,7 +225,7 @@ const Dashboard = () => {
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredIssues.map((issue) => (
-            <IssueCard key={issue.id} issue={issue} getStatusColor={getStatusColor} />
+            <IssueCard key={issue.id} issue={issue} getStatusColor={getStatusColor} onLike={handleLike} />
           ))}
           {filteredIssues.length === 0 && (
             <div className="col-span-full text-center py-20 text-gray-400">
@@ -245,7 +237,7 @@ const Dashboard = () => {
           )}
         </div>
       ) : (
-        <div className="h-[600px] rounded-2xl overflow-hidden shadow-sm border border-gray-200 z-0">
+        <div className="h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-sm border border-gray-200 z-0">
           <MapContainer center={[45.7489, 21.2087]} zoom={13} style={{ height: '100%', width: '100%' }}>
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
