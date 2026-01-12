@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Map as MapIcon, Bell, User, LogOut } from 'lucide-react';
+import { Map as MapIcon, Bell, User, LogOut, Check } from 'lucide-react';
+import axios from 'axios';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -9,6 +10,8 @@ const Navbar = () => {
   const location = useLocation();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const userMenuRef = useRef(null);
   const notificationRef = useRef(null);
@@ -22,6 +25,35 @@ const Navbar = () => {
     return location.pathname === path
       ? "bg-gray-100 text-gray-900 font-medium"
       : "text-gray-500 hover:text-gray-900 font-medium";
+  };
+
+  // Fetch notifications
+  useEffect(() => {
+    if (user) {
+        fetchNotifications();
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+        const res = await axios.get('/api/notifications');
+        setNotifications(res.data);
+        setUnreadCount(res.data.filter(n => !n.is_read).length);
+    } catch (err) {
+        console.error("Failed to fetch notifications", err);
+    }
+  };
+
+  const markAsRead = async (id) => {
+    try {
+        await axios.patch(`/api/notifications/${id}/read`);
+        setNotifications(notifications.map(n =>
+            n.id === id ? { ...n, is_read: true } : n
+        ));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+        console.error("Failed to mark notification as read", err);
+    }
   };
 
   // Close dropdowns when clicking outside
@@ -95,17 +127,51 @@ const Navbar = () => {
                     className={`text-gray-400 hover:text-gray-600 relative p-1 rounded-full hover:bg-gray-100 transition-colors ${isNotificationsOpen ? 'bg-gray-100 text-gray-600' : ''}`}
                 >
                     <Bell size={20} />
-                    <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white transform translate-x-1/2 -translate-y-1/2"></span>
+                    {unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white transform translate-x-1/2 -translate-y-1/2"></span>
+                    )}
                 </button>
 
                 {isNotificationsOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg py-2 border border-gray-100 z-50">
-                        <div className="px-4 py-2 border-b border-gray-50 text-xs font-semibold text-gray-500 uppercase">
-                            Notifications
+                    <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-2 border border-gray-100 z-50 max-h-96 overflow-y-auto">
+                        <div className="px-4 py-2 border-b border-gray-50 flex justify-between items-center">
+                            <span className="text-xs font-semibold text-gray-500 uppercase">Notifications</span>
+                            {unreadCount > 0 && <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{unreadCount} new</span>}
                         </div>
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                            No new notifications
-                        </div>
+
+                        {notifications.length === 0 ? (
+                            <div className="px-4 py-8 text-sm text-gray-500 text-center flex flex-col items-center">
+                                <Bell size={24} className="mb-2 text-gray-300" />
+                                <p>No notifications yet</p>
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-gray-50">
+                                {notifications.map((notification) => (
+                                    <div
+                                        key={notification.id}
+                                        className={`px-4 py-3 hover:bg-gray-50 transition-colors flex gap-3 ${!notification.is_read ? 'bg-blue-50/30' : ''}`}
+                                    >
+                                        <div className="flex-1">
+                                            <p className={`text-sm ${!notification.is_read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+                                                {notification.message}
+                                            </p>
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                {new Date(notification.created_at).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        {!notification.is_read && (
+                                            <button
+                                                onClick={() => markAsRead(notification.id)}
+                                                className="text-blue-600 hover:text-blue-800 p-1 self-start"
+                                                title="Mark as read"
+                                            >
+                                                <Check size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
