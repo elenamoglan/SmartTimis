@@ -60,9 +60,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                 {/* Navigation */}
                 <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
                     <Link
-                        to="/"
+                        to="/dashboard"
                         onClick={onClose} // Close menu when clicked on mobile
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive('/')}`}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive('/dashboard')}`}
                     >
                         <LayoutDashboard size={20} />
                         <span className="font-medium">Dashboard</span>
