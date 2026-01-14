@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Shield, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Shield, Clock, CheckCircle, AlertCircle, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const AdminDashboard = () => {
   const [issues, setIssues] = useState([]);
@@ -49,6 +51,33 @@ const AdminDashboard = () => {
       const stat = stats.find(s => s.status === status);
       return stat ? stat.count : 0;
   }
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(20);
+    doc.text('Issue Reports', 14, 15);
+
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 25);
+
+    const tableColumn = ["Title", "Description", "Reporter", "Status", "Date"];
+    const tableRows = issues.map(issue => [
+        issue.title,
+        issue.description,
+        issue.reporter_name,
+        issue.status,
+        new Date(issue.created_at).toLocaleDateString()
+    ]);
+
+    autoTable(doc, {
+      startY: 30,
+      head: [tableColumn],
+      body: tableRows,
+    });
+
+    doc.save('reports.pdf');
+  };
 
   if (loading) return (
       <div className="flex items-center justify-center min-h-[500px]">
@@ -118,7 +147,7 @@ const AdminDashboard = () => {
                 <div className="h-64 flex items-end justify-around gap-2 px-4 pb-4 border-b border-gray-100">
                     {/* Mock Data Bars */}
                     {[40, 65, 30, 80, 55, 90, 45].map((h, i) => (
-                        <div key={i} className="w-full flex flex-col justify-end group cursor-pointer">
+                        <div key={i} className="w-full h-full flex flex-col justify-end group cursor-pointer">
                             <div
                                 style={{ height: `${h}%` }}
                                 className="bg-blue-100 hover:bg-blue-600 rounded-t-lg transition-all duration-300 relative"
@@ -159,8 +188,15 @@ const AdminDashboard = () => {
 
         {/* Detailed Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                 <h3 className="font-bold text-gray-900">All Reports</h3>
+                <button
+                    onClick={generatePDF}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                    <Download size={16} />
+                    Download PDF
+                </button>
             </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
