@@ -52,6 +52,33 @@ const AdminDashboard = () => {
       return stat ? stat.count : 0;
   }
 
+  // Calculate chart data from issues
+  const getChartData = () => {
+    const last7Days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d;
+    });
+
+    const data = last7Days.map(date => {
+      const dateStr = date.toLocaleDateString();
+      const count = issues.filter(issue =>
+        new Date(issue.created_at).toLocaleDateString() === dateStr
+      ).length;
+      return {
+        date: date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }), // e.g. "Mon 12"
+        count
+      };
+    });
+
+    const maxCount = Math.max(...data.map(d => d.count));
+
+    return data.map(d => ({
+      ...d,
+      height: maxCount > 0 ? (d.count / maxCount) * 100 : 0
+    }));
+  };
+
   const generatePDF = () => {
     const doc = new jsPDF();
 
@@ -143,20 +170,19 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Chart Simulation (CSS Based) */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-2">
-                <h3 className="font-bold text-gray-900 mb-6">Reports Overview</h3>
+                <h3 className="font-bold text-gray-900 mb-6">Reports Overview (Last 7 Days)</h3>
                 <div className="h-64 flex items-end justify-around gap-2 px-4 pb-4 border-b border-gray-100">
-                    {/* Mock Data Bars */}
-                    {[40, 65, 30, 80, 55, 90, 45].map((h, i) => (
+                    {getChartData().map((item, i) => (
                         <div key={i} className="w-full h-full flex flex-col justify-end group cursor-pointer">
                             <div
-                                style={{ height: `${h}%` }}
+                                style={{ height: `${item.height}%` }}
                                 className="bg-blue-100 hover:bg-blue-600 rounded-t-lg transition-all duration-300 relative"
                             >
                                 <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {h}
+                                    {item.count}
                                 </span>
                             </div>
-                            <span className="text-xs text-gray-400 text-center mt-2">Day {i+1}</span>
+                            <span className="text-[10px] text-gray-400 text-center mt-2 truncate w-full">{item.date}</span>
                         </div>
                     ))}
                 </div>
