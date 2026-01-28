@@ -27,7 +27,7 @@ const LandingPage = () => {
             </Link>
             <Link
               to="/register"
-              className="bg-blue-800 hover:bg-blue-900 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors"
+              className="bg-blue-600 hover:bg-blue-900 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors"
             >
               Get Started
             </Link>
