@@ -22,10 +22,33 @@ const ReportIssue = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [position, setPosition] = useState(null);
+  const [address, setAddress] = useState('');
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const fetchAddress = async () => {
+      if (position) {
+        try {
+          const res = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}`);
+          if (res.data && res.data.display_name) {
+             // Extract street name if possible, otherwise full address
+             const addr = res.data.address;
+             const street = addr.road || addr.pedestrian || addr.street || res.data.display_name.split(',')[0];
+             const city = addr.city || addr.town || addr.village;
+             const formatted = city ? `${street}, ${city}` : street;
+             setAddress(formatted || res.data.display_name);
+          }
+        } catch (err) {
+          console.error("Failed to fetch address", err);
+          setAddress('');
+        }
+      }
+    };
+    fetchAddress();
+  }, [position]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +62,7 @@ const ReportIssue = () => {
     formData.append('description', description);
     formData.append('latitude', position.lat);
     formData.append('longitude', position.lng);
+    formData.append('address', address);
     if (image) {
       formData.append('image', image);
     }
@@ -125,8 +149,22 @@ const ReportIssue = () => {
                     )}
                 </div>
                 {position && (
-                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-100">
-                        <span className="font-medium text-blue-600">Selected:</span> {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
+                    <div className="mt-3 flex flex-col gap-2 text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-100">
+                        <div>
+                            <span className="font-medium text-blue-600">Coordinates:</span> {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
+                        </div>
+                        {address && (
+                            <div>
+                                <span className="font-medium text-blue-600">Address:</span> {address}
+                            </div>
+                        )}
+                        <input
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Confirm or edit address"
+                            className="w-full border border-gray-300 px-2 py-1 rounded text-sm mt-1"
+                        />
                     </div>
                 )}
             </div>

@@ -4,7 +4,7 @@ const userRepository = require('../users/user.repository');
 
 const createIssue = async (req, res, next) => {
   try {
-    const { title, description, latitude, longitude } = req.body;
+    const { title, description, latitude, longitude, address } = req.body;
     let image_url = null;
     if (req.file) {
       image_url = `/uploads/${req.file.filename}`;
@@ -22,6 +22,7 @@ const createIssue = async (req, res, next) => {
       image_url,
       latitude,
       longitude,
+      address,
     });
 
     // Notify all admins

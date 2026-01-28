@@ -88,10 +88,11 @@ const AdminDashboard = () => {
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 25);
 
-    const tableColumn = ["Title", "Description", "Reporter", "Status", "Date"];
+    const tableColumn = ["Title", "Description", "Location", "Reporter", "Status", "Date"];
     const tableRows = issues.map(issue => [
         issue.title,
         issue.description,
+        issue.address || "N/A",
         issue.reporter_name,
         issue.status,
         new Date(issue.created_at).toLocaleDateString()
@@ -229,6 +230,7 @@ const AdminDashboard = () => {
                 <thead className="bg-gray-50">
                 <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Issue</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
@@ -241,6 +243,9 @@ const AdminDashboard = () => {
                         <td className="px-6 py-4">
                             <div className="text-sm font-medium text-gray-900">{issue.title}</div>
                             <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{issue.description}</div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                            <span className="line-clamp-2">{issue.address || "N/A"}</span>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500">
                             {issue.reporter_name}
