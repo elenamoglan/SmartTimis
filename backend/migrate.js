@@ -29,6 +29,15 @@ const runMigrations = async () => {
              console.log('Migration 003 skipped/error:', e.message);
         }
 
+        // 004 Address
+        try {
+            const sql004 = fs.readFileSync(path.join(__dirname, 'migrations', '004_add_address_to_issues.sql'), 'utf8');
+            await client.query(sql004);
+            console.log('Migration 004 executed.');
+        } catch (e) {
+             console.log('Migration 004 skipped/error:', e.message);
+        }
+
         client.release();
         process.exit(0);
     } catch (err) {

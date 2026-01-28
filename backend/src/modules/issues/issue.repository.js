@@ -1,10 +1,10 @@
 const db = require('../../config/db');
 
 const createIssue = async (issue) => {
-  const { user_id, title, description, image_url, latitude, longitude } = issue;
+  const { user_id, title, description, image_url, latitude, longitude, address } = issue;
   const query = `
-    INSERT INTO issue_reports (user_id, title, description, image_url, latitude, longitude)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO issue_reports (user_id, title, description, image_url, latitude, longitude, address)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
   `;
   const result = await db.query(query, [
@@ -14,6 +14,7 @@ const createIssue = async (issue) => {
     image_url,
     latitude,
     longitude,
+    address,
   ]);
   return result.rows[0];
 };

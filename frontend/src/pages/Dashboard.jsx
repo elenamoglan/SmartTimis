@@ -43,7 +43,7 @@ const IssueCard = ({ issue, getStatusColor, onLike }) => {
           <div className="flex items-center text-gray-400 text-xs">
             <MapPin size={14} className="mr-2 flex-shrink-0" />
             <span className="truncate">
-               Lat: {issue.latitude.toFixed(4)}, Lng: {issue.longitude.toFixed(4)}
+               {issue.address ? issue.address : `Lat: ${issue.latitude.toFixed(4)}, Lng: ${issue.longitude.toFixed(4)}`}
             </span>
           </div>
           <div className="flex items-center text-gray-400 text-xs">
@@ -252,6 +252,7 @@ const Dashboard = () => {
                 <Popup>
                   <div className="min-w-[200px]">
                     <h3 className="font-bold text-gray-900 mb-1">{issue.title}</h3>
+                    {issue.address && <p className="text-xs text-gray-500 mb-1 flex items-center"><MapPin size={10} className="mr-1"/>{issue.address}</p>}
                     <p className="text-sm text-gray-600 mb-2">{issue.description.substring(0, 50)}...</p>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-bold uppercase ${getStatusColor(issue.status)}`}>
                       {issue.status}
