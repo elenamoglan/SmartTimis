@@ -34,11 +34,18 @@ const ReportIssue = () => {
         try {
           const res = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}`);
           if (res.data && res.data.display_name) {
-             // Extract street name if possible, otherwise full address
+             // Extract street name and number if possible, otherwise full address
              const addr = res.data.address;
              const street = addr.road || addr.pedestrian || addr.street || res.data.display_name.split(',')[0];
+             const number = addr.house_number || '';
              const city = addr.city || addr.town || addr.village;
-             const formatted = city ? `${street}, ${city}` : street;
+
+             let locationPart = street;
+             if (locationPart && number) {
+                locationPart = `${street}, ${number}`;
+             }
+
+             const formatted = city ? `${locationPart}, ${city}` : locationPart;
              setAddress(formatted || res.data.display_name);
           }
         } catch (err) {
