@@ -1,9 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, FileText, Shield, CheckCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MapPin, FileText, Shield, CheckCircle, ArrowRight } from 'lucide-react';
 import logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       {/* Header */}
@@ -32,33 +36,60 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section
-        className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center"
-        style={{ background: 'linear-gradient(135deg, #13386c, #24748f)' }}
-      >
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
-            Building better <br/>
-            <span className="text-blue-200">communities together.</span>
-          </h1>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Report issues, track progress, and collaborate with local authorities to improve your neighborhood. Join the SmartCity initiative today.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/register"
-              className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-blue-400"
-            >
-              Report an Issue
-            </Link>
-            <Link
-              to="/login"
-              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg border border-white/30 transition-all shadow-sm hover:shadow-md backdrop-blur-sm"
-            >
-              View Dashboard
-            </Link>
+      <section className="relative overflow-hidden hero-gradient text-white min-h-[600px] flex items-center">
+        {/* SVG Background Pattern */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
+
+        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-slide-up">
+              Building a Better City,
+              <br />
+              <span className="text-blue-200">Together</span>
+            </h1>
+            <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              Report infrastructure issues, track their resolution, and help make your community safer and more livable.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              {user ? (
+                <>
+                  <button
+                    onClick={() => navigate('/report')}
+                    className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg text-blue-900 bg-white hover:bg-gray-50 transition-colors shadow-lg"
+                  >
+                    Report an Issue
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg text-white border border-white/20 bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm"
+                  >
+                    View Issue Map
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate('/register')}
+                    className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg text-blue-900 bg-white hover:bg-gray-50 transition-colors shadow-lg"
+                  >
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg text-white border border-white/20 bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm"
+                  >
+                    Sign In
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Bottom Fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
       </section>
 
       {/* Features Section */}
