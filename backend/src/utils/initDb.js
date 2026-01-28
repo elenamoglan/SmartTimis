@@ -47,6 +47,8 @@ const createTables = async () => {
 );
 
   ALTER TABLE issue_reports ADD COLUMN IF NOT EXISTS likes_count INTEGER DEFAULT 0;
+  ALTER TABLE issue_reports ADD COLUMN IF NOT EXISTS address TEXT;
+
   `
 
 
