@@ -88,11 +88,21 @@ const AdminDashboard = () => {
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 25);
 
+    const cleanAddress = (addr) => {
+        if (!addr) return "N/A";
+        // Check for the specific corruption pattern (excessive ampersands) seen in user reports
+        // Pattern: &S&t&r&a&d&a...
+        if (addr.includes('&') && addr.length > 5 && (addr.match(/&/g) || []).length > addr.length / 3) {
+             return addr.replace(/&/g, '');
+        }
+        return addr;
+    };
+
     const tableColumn = ["Title", "Description", "Location", "Reporter", "Status", "Date"];
     const tableRows = issues.map(issue => [
         issue.title,
         issue.description,
-        issue.address || "N/A",
+        cleanAddress(issue.address),
         issue.reporter_name,
         issue.status,
         new Date(issue.created_at).toLocaleDateString()
