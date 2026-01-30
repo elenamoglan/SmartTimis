@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Shield, Clock, CheckCircle, AlertCircle, Download } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import robotoFont from '../assets/fonts/Roboto-Regular';
 
 const AdminDashboard = () => {
   const [issues, setIssues] = useState([]);
@@ -82,27 +83,22 @@ const AdminDashboard = () => {
   const generatePDF = () => {
     const doc = new jsPDF();
 
+    // Add custom font for UTF-8 support (Romanian characters)
+    doc.addFileToVFS('Roboto-Regular.ttf', robotoFont);
+    doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+    doc.setFont('Roboto');
+
     doc.setFontSize(20);
     doc.text('Issue Reports', 14, 15);
 
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 25);
 
-    const cleanAddress = (addr) => {
-        if (!addr) return "N/A";
-        // Check for the specific corruption pattern (excessive ampersands) seen in user reports
-        // Pattern: &S&t&r&a&d&a...
-        if (addr.includes('&') && addr.length > 5 && (addr.match(/&/g) || []).length > addr.length / 3) {
-             return addr.replace(/&/g, '');
-        }
-        return addr;
-    };
-
     const tableColumn = ["Title", "Description", "Location", "Reporter", "Status", "Date"];
     const tableRows = issues.map(issue => [
         issue.title,
         issue.description,
-        cleanAddress(issue.address),
+        issue.address || "N/A",
         issue.reporter_name,
         issue.status,
         new Date(issue.created_at).toLocaleDateString()
@@ -112,6 +108,10 @@ const AdminDashboard = () => {
       startY: 30,
       head: [tableColumn],
       body: tableRows,
+      styles: {
+        font: 'Roboto',
+        fontStyle: 'normal'
+      }
     });
 
     doc.save('reports.pdf');
